@@ -5,14 +5,20 @@ import static back.Playground.SIZE_X;
 public class Player {
     private Colour colour;
     private int score;
-    private boolean avaiableBalls[];
-    private int position;
+    private boolean avilableBalls[];
+    private boolean stuckBalls[];
+    private int column;
 
-    public Player(Colour colour, int score) {
+    public Player(Colour colour) {
         this.colour = colour;
-        this.score = score;
-        this.avaiableBalls = new boolean[SIZE_X];
-        this.position = 0;
+        this.score = 0;
+        this.avilableBalls = new boolean[SIZE_X];
+        this.stuckBalls = new boolean[SIZE_X];
+        this.column = 0;
+        for(int i = 0; i < SIZE_X; i++) {
+            avilableBalls[i] = true;
+            stuckBalls[i] = false;
+        }
     }
 
     public Colour getColour() {
@@ -25,21 +31,35 @@ public class Player {
     }
 
     public boolean[] getAvaiableBalls() {
-        return avaiableBalls;
+        return avilableBalls;
+    }
+
+    public int getColumn() {
+        return column;
     }
 
     public void goLeft() {
-        if(position > 0)
-            position = position - 1;
+        if(column > 0)
+            column = column - 1;
     }
 
     public void goRight() {
-        if(position < SIZE_X - 1)
-            position = position + 1;
+        if(column < SIZE_X - 1)
+            column = column + 1;
     }
 
-    public void dropTheBall() {
-        if(avaiableBalls[position] && grid[position][1] == Tiles.EMPTY)
-            // droping the ball
+    public void addScore(int delta) {
+        this.score += delta;
+    }
+    public boolean canDropTheBall() {
+        return avilableBalls[column] && !stuckBalls[column];
+    }
+
+    public void updateStuckBalls(boolean[] table) {
+        for(int i = 0; i<SIZE_X; i++) {
+            if(avilableBalls[i] == true && table[i] == true) {
+                stuckBalls[i] = true;
+            }
+        }
     }
 }

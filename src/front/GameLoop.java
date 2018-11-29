@@ -1,5 +1,7 @@
 package front;
 
+import back.Colour;
+import back.Player;
 import back.Playground;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
@@ -14,14 +16,10 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-public class HelloWorld {
-
-    // The window handle
+public class GameLoop {
     private long window;
 
     public void run() {
-        Playground dupa = new Playground();
-        System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
         init();
         loop();
@@ -86,6 +84,14 @@ public class HelloWorld {
 
         // Make the window visible
         glfwShowWindow(window);
+
+        Playground playground = new Playground();
+        Player players[] = {new Player(Colour.RED), new Player(Colour.BLUE)};
+
+        players[0].updateStuckBalls();
+        if(players[0].canDropTheBall()) {
+            playground.updateGrid(players[0], players[0].getColumn(), 1);
+        }
     }
 
     private void loop() {
@@ -113,7 +119,7 @@ public class HelloWorld {
     }
 
     public static void main(String[] args) {
-        new HelloWorld().run();
+        new GameLoop().run();
     }
 
 }

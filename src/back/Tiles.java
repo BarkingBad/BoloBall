@@ -3,8 +3,8 @@ package back;
 public enum Tiles {
     EMPTY(0),
     UPPER_FIELD(1),
-    BALL(2),
-    BALL_STUCK(3),
+    BALL_RED(2),
+    BALL_BLUE(3),
     ARROW_LEFT(4),
     ARROW_RIGHT(5),
     BLOCK(6),
