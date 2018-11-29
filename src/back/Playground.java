@@ -130,7 +130,7 @@ public class Playground {
         updateGrid(player, column, row+1);
     }
 
-    private boolean[] getStuckLanes() {
+    public boolean[] getStuckLanes() {
         return stuckLanes;
     }
     
