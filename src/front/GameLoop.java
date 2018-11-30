@@ -3,6 +3,7 @@ package front;
 import back.Colour;
 import back.Player;
 import back.Playground;
+import back.Tiles;
 
 import java.awt.*;
 
@@ -43,6 +44,7 @@ public class GameLoop {
             @Override
             public void run() {
                 Window window = new Window();
+                window.add(Tiles.EMPTY.getImg());
                 window.setVisible(true);
             }
         });
