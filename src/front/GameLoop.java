@@ -3,33 +3,38 @@ package front;
 import back.Colour;
 import back.Player;
 import back.Playground;
-import back.Tiles;
 
 import java.awt.*;
 
 
 public class GameLoop {
-    private long window;
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 600;
+    public static final int WIDTH = 984;
+    public static final int HEIGHT = 800;
 
     private Playground playground;
     private Player[] players;
 
-    public void run() {
-
+    private GameLoop() {
+        init();
 
     }
-
     private void init() {
         playground = new Playground();
         players = new Player[]{new Player(Colour.RED), new Player(Colour.BLUE)};
 
 
+        EventQueue.invokeLater(() -> {
+            Frame frame = new Frame(playground);
+            frame.setVisible(true);
+        });
 
+        loop();
     }
 
     private void loop() {
+//        while(true) {
+//
+//        }
 
         players[0].updateStuckBalls(playground.getStuckLanes());
         if(players[0].canDropTheBall()) {
@@ -39,15 +44,7 @@ public class GameLoop {
     }
 
     public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                Window window = new Window();
-                window.add(Tiles.EMPTY.getImg());
-                window.setVisible(true);
-            }
-        });
+        GameLoop game = new GameLoop();
     }
 
 }

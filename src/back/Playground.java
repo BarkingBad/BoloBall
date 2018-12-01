@@ -11,6 +11,9 @@ public class Playground {
     public static final int SIZE_X = 29;
     public static final int FIELD = SIZE_X * SIZE_Y;
     private Tiles [][] grid = new Tiles [SIZE_X][SIZE_Y];
+
+
+
     private boolean stuckLanes[] = new boolean[SIZE_X];
     private List<Pair<Tiles, Integer>> amountOfTiles = new LinkedList<>();
     private List<Point> teleports = new LinkedList<>();
@@ -78,7 +81,7 @@ public class Playground {
             case BALL_RED:
                 stuck(player , column, row);
                 break;
-            case BALL_BLUE:
+            case BALL_GREEN:
                 stuck(player , column, row);
                 break;
             case ARROW_LEFT:
@@ -133,5 +136,8 @@ public class Playground {
     public boolean[] getStuckLanes() {
         return stuckLanes;
     }
-    
+
+    public Tiles[][] getGrid() {
+        return grid;
+    }
 }

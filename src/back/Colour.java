@@ -1,7 +1,7 @@
 package back;
 
 public enum Colour {
-    BLUE(0, Tiles.BALL_BLUE),
+    GREEN(0, Tiles.BALL_GREEN),
     RED(1, Tiles.BALL_RED);
 
     private int code;
