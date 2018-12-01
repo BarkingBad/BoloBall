@@ -20,7 +20,7 @@ public class GameLoop {
     }
     private void init() {
         playground = new Playground();
-        players = new Player[]{new Player(Colour.RED), new Player(Colour.BLUE)};
+        players = new Player[]{new Player(Colour.RED), new Player(Colour.GREEN)};
 
 
         EventQueue.invokeLater(() -> {
