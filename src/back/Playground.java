@@ -112,16 +112,51 @@ public class Playground {
         tmp.remove(new Point(column, row));
         int r = random.nextInt(tmp.size());
         grid[column][row] = Tiles.TELEPORT;
-        grid[tmp.get(r).getX()][tmp.get(r).getY()] = player.getColour().getTile();
+        grid[tmp.get(r).getX()][tmp.get(r).getY()] = player.getColour().getBall();
         updateGrid(player, tmp.get(r).getX(), tmp.get(r).getY() );
     }
 
     private void turnBall(Player player, int column, int row) {
 
+        if(grid[column][row+1] == Tiles.ARROW_LEFT && column > 0 && grid[column-1][row] == Tiles.EMPTY) {
+
+            grid[column][row] = Tiles.EMPTY;
+            grid[column-1][row] = player.getColour().getBall();
+
+            if((grid[column-1][row+1] == Tiles.BALL_GREEN || grid[column-1][row+1] == Tiles.BALL_RED) && column > 1) {
+                grid[column - 1][row] = Tiles.EMPTY;
+                grid[column - 2][row] = player.getColour().getBall();
+
+                if(grid[column - 2][row + 1] == Tiles.ARROW_LEFT || grid[column - 2][row + 1] == Tiles.ARROW_RIGHT) {
+                    turnBall(player, column - 2, row);
+                }
+
+                else if(grid[column - 2][row + 1] == Tiles.BLOCK) {
+                    stuck(player, column-2, row);
+                }
+
+                else {
+                    freeFall(player, column-2, row);
+                }
+            }
+
+            else if((grid[column-1][row+1] == Tiles.ARROW_RIGHT || grid[column-1][row+1] == Tiles.ARROW_LEFT)) {
+                turnBall(player, column-1, row);
+            }
+
+            else if(grid[column-1][row+1] == Tiles.EMPTY) {
+                freeFall(player, column-1, row);
+            }
+
+            else {
+                stuck(player, column-1, row);
+            }
+
+        }
     }
 
     private void stuck(Player player, int column, int row) {
-        grid[column][row] = player.getColour().getTile();
+        grid[column][row] = player.getColour().getBall();
         if(row == 2) {
             stuckLanes[column] = true;
         }
@@ -129,8 +164,9 @@ public class Playground {
 
     private void freeFall(Player player, int column, int row) {
         grid[column][row] = Tiles.EMPTY;
-        grid[column][row+1] = player.getColour().getTile();
+        grid[column][row+1] = player.getColour().getBall();
         updateGrid(player, column, row+1);
+
     }
 
     public boolean[] getStuckLanes() {
@@ -139,5 +175,17 @@ public class Playground {
 
     public Tiles[][] getGrid() {
         return grid;
+    }
+
+    public Tiles getBallAt(int x, int y) throws ArrayIndexOutOfBoundsException {
+        if(x < 0 || x >= SIZE_X || y < 0 || y >= SIZE_Y)
+            throw new ArrayIndexOutOfBoundsException();
+        return grid[x][y];
+    }
+
+    public void setTileAt(Tiles t, int x, int y) throws ArrayIndexOutOfBoundsException {
+        if(x < 0 || x >= SIZE_X || y < 0 || y >= SIZE_Y)
+            throw new ArrayIndexOutOfBoundsException();
+        grid[x][y] = t;
     }
 }

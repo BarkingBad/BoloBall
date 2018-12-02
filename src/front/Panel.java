@@ -1,31 +1,46 @@
 package front;
 
+import back.Colour;
+import back.Player;
 import back.Playground;
 import back.Tiles;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
-public class Panel extends JPanel {
-    private BufferedImage image;
-    private Playground p;
-    public Panel(Playground p) {
+
+public class Panel extends JPanel implements ActionListener {
+    private final int DELAY = 10;
+    private Timer timer;
+    private Playground playground;
+    private Player[] players;
+    private int currentTurn = 0;
+    public Panel() {
         super();
-        this.p = p;
-        initPanel();
+        init();
     }
 
-    private void initPanel() {
-        loadImage();
-        //setPreferredSize(new Dimension(image.getWidth(this), image.getHeight(this)));
+    private void init() {
+        addKeyListener(new TAdapter());
+        setBackground(Color.BLACK);
+        Timer timer = new Timer(DELAY, this);
+        timer.start();
+        setFocusable(true);
+        playground = new Playground();
+        players = new Player[]{new Player(Colour.RED), new Player(Colour.GREEN)};
+
     }
 
-    private void loadImage() {
 
+
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+        players[currentTurn].update(playground);
+        repaint();
     }
 
     @Override
@@ -34,7 +49,18 @@ public class Panel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         for(int x=0; x< Playground.SIZE_X; x++)
             for(int y=0; y<Playground.SIZE_Y; y++)
-                g2d.drawImage(p.getGrid()[x][y].getImg(), x*34, y*34, null);
+                g2d.drawImage(playground.getGrid()[x][y].getImg(), x*34, y*34, null);
+
+        Toolkit.getDefaultToolkit().sync();
     }
 
+    private class TAdapter extends KeyAdapter {
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            players[currentTurn].keyPressed(e, playground);
+        }
+
+
+    }
 }

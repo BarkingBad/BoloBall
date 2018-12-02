@@ -2,31 +2,28 @@ package back;
 
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 public enum Tiles {
-    EMPTY(0, "BoloBall/src/img/empty.png"),
-    UPPER_FIELD(1, "BoloBall/src/img/upper_field.png"),
-    BALL_RED(2, "BoloBall/src/img/ball_red.png"),
-    BALL_GREEN(3, "BoloBall/src/img/ball_green.png"),
-    ARROW_LEFT(4, "BoloBall/src/img/arrow_left.png"),
-    ARROW_RIGHT(5, "BoloBall/src/img/arrow_right.png"),
-    BLOCK(6, "BoloBall/src/img/block.png"),
-    TELEPORT(7, "BoloBall/src/img/teleport.png"),
-    POINTS(8, "BoloBall/src/img/points.png");
+    EMPTY( "BoloBall/src/img/empty.png"),
+    UPPER_FIELD( "BoloBall/src/img/upper_field.png"),
+    BALL_RED( "BoloBall/src/img/ball_red.png"),
+    BALL_GREEN( "BoloBall/src/img/ball_green.png"),
+    ARROW_LEFT( "BoloBall/src/img/arrow_left.png"),
+    ARROW_RIGHT( "BoloBall/src/img/arrow_right.png"),
+    ARROW_DOWN("BoloBall/src/img/arrow_down.png"),
+    BLOCK( "BoloBall/src/img/block.png"),
+    TELEPORT( "BoloBall/src/img/teleport.png"),
+    POINTS( "BoloBall/src/img/points.png"),
+    SPRITE_RED("BoloBall/src/img/sprite_red.png"),
+    SPRITE_GREEN("BoloBall/src/img/sprite_green.png");
 
-    private int code;
     private BufferedImage img;
 
-
-
-    Tiles(int code, String path) {
-        this.code = code;
+    Tiles(String path) {
         File imageFile = new File(path);
         try {
             this.img = ImageIO.read(imageFile);
@@ -34,10 +31,6 @@ public enum Tiles {
             System.err.println("Blad odczytu obrazka");
             e.printStackTrace();
         }
-    }
-
-    public int getCode() {
-        return this.code;
     }
 
     public Image getImg() {
