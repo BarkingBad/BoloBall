@@ -35,12 +35,14 @@ public class Panel extends JPanel implements ActionListener {
 
     }
 
-
+    public void blit() {
+        repaint();
+    }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         players[currentTurn].update(playground);
-        repaint();
+        blit();
     }
 
     @Override
@@ -51,6 +53,9 @@ public class Panel extends JPanel implements ActionListener {
             for(int y=0; y<Playground.SIZE_Y; y++)
                 g2d.drawImage(playground.getGrid()[x][y].getImg(), x*34, y*34, null);
 
+        g2d.drawImage(Tiles.BALL_RED.getImg(), 20, 660, null);
+        g2d.drawImage(Tiles.BALL_GREEN.getImg(), Frame.WIDTH - 20 - 32, 660, null);
+        g2d.drawString(players[0].getScoreToString(), 20, 710);
         Toolkit.getDefaultToolkit().sync();
     }
 
@@ -58,7 +63,7 @@ public class Panel extends JPanel implements ActionListener {
 
         @Override
         public void keyPressed(KeyEvent e) {
-            players[currentTurn].keyPressed(e, playground);
+            players[currentTurn].keyPressed(e, playground, Panel.this);
         }
 
 

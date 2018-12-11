@@ -1,5 +1,8 @@
 package back;
 
+import front.Frame;
+import front.Panel;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -73,99 +76,126 @@ public class Playground {
         return Tiles.EMPTY;
     }
 
-    public void updateGrid(Player player, int column, int row) {
+    private void sleepAndPaint(Panel panel) {
+        panel.paintImmediately(0,0, Frame.WIDTH, Frame.HEIGHT);
+        try {
+            Thread.sleep(500);
+        }
+        catch (InterruptedException e){
+
+        }
+    }
+
+    public void swipeTheBall(Panel panel, Player player, int column) {
+
+    }
+
+    public void updateGrid(Panel panel, Player player, int column, int row) {
+        sleepAndPaint(panel);
+        if(row == SIZE_Y - 1) {
+            swipeTheBall(panel, player, column);
+        }
         switch (grid[column][row+1]) {
             case EMPTY:
-                freeFall(player , column, row);
+                freeFall(panel, player, column, row);
                 break;
             case BALL_RED:
-                stuck(player , column, row);
+                stuck(panel, player, column, row);
                 break;
             case BALL_GREEN:
-                stuck(player , column, row);
+                stuck(panel, player, column, row);
                 break;
             case ARROW_LEFT:
-                turnBall(player , column, row);
+                turnBall(panel, player, column, row);
                 break;
             case ARROW_RIGHT:
-                turnBall(player , column, row);
+                turnBall(panel, player, column, row);
                 break;
             case BLOCK:
-                stuck(player , column, row);
+                stuck(panel, player, column, row);
                 break;
             case TELEPORT:
-                teleport(player , column, row);
+                teleport(panel, player, column, row);
                 break;
             case POINTS:
-                addScore(player , column, row);
+                addScore(panel, player, column, row);
                 break;
         }
     }
 
-    private void addScore(Player player, int column, int row) {
+    private void addScore(Panel panel, Player player, int column, int row) {
         player.addScore(10);
-        freeFall(player, column, row);
+        freeFall(panel, player, column, row);
     }
 
-    private void teleport(Player player, int column, int row) {
+    private void teleport(Panel panel, Player player, int column, int row) {
         List<Point> tmp = teleports.subList(0, teleports.size());
         tmp.remove(new Point(column, row));
         int r = random.nextInt(tmp.size());
-        grid[column][row] = Tiles.TELEPORT;
+        grid[column][row] = Tiles.EMPTY;
+        grid[column][row+1] = player.getColour().getBall();
+        sleepAndPaint(panel);
+        grid[column][row+1] = Tiles.TELEPORT;
         grid[tmp.get(r).getX()][tmp.get(r).getY()] = player.getColour().getBall();
-        updateGrid(player, tmp.get(r).getX(), tmp.get(r).getY() );
+        updateGrid(panel, player, tmp.get(r).getX(), tmp.get(r).getY() );
     }
 
-    private void turnBall(Player player, int column, int row) {
+    private void turnBall(Panel panel, Player player, int column, int row) {
 
-        if(grid[column][row+1] == Tiles.ARROW_LEFT && column > 0 && grid[column-1][row] == Tiles.EMPTY) {
-
+        if(grid[column][row+1] == Tiles.ARROW_LEFT && column > 0 && (grid[column-1][row] == Tiles.EMPTY || grid[column-1][row] == Tiles.POINTS)) {
+            if(grid[column-1][row] == Tiles.POINTS) {
+                player.addScore(10);
+            }
+            grid[column][row+1] = Tiles.ARROW_DOWN;
             grid[column][row] = Tiles.EMPTY;
             grid[column-1][row] = player.getColour().getBall();
-
+            sleepAndPaint(panel);
+            grid[column][row+1] = Tiles.ARROW_RIGHT;
             if((grid[column-1][row+1] == Tiles.BALL_GREEN || grid[column-1][row+1] == Tiles.BALL_RED) && column > 1) {
                 grid[column - 1][row] = Tiles.EMPTY;
                 grid[column - 2][row] = player.getColour().getBall();
+                sleepAndPaint(panel);
 
-                if(grid[column - 2][row + 1] == Tiles.ARROW_LEFT || grid[column - 2][row + 1] == Tiles.ARROW_RIGHT) {
-                    turnBall(player, column - 2, row);
-                }
-
-                else if(grid[column - 2][row + 1] == Tiles.BLOCK) {
-                    stuck(player, column-2, row);
-                }
-
-                else {
-                    freeFall(player, column-2, row);
-                }
+                updateGrid(panel, player, column-2, row);
             }
 
-            else if((grid[column-1][row+1] == Tiles.ARROW_RIGHT || grid[column-1][row+1] == Tiles.ARROW_LEFT)) {
-                turnBall(player, column-1, row);
-            }
+            updateGrid(panel, player, column-1, row);
 
-            else if(grid[column-1][row+1] == Tiles.EMPTY) {
-                freeFall(player, column-1, row);
-            }
+        }
 
-            else {
-                stuck(player, column-1, row);
+        else if(grid[column][row+1] == Tiles.ARROW_RIGHT && column < SIZE_X - 1 && (grid[column+1][row] == Tiles.EMPTY || grid[column+1][row] == Tiles.POINTS)) {
+            if(grid[column+1][row] == Tiles.POINTS) {
+                player.addScore(10);
             }
+            grid[column][row+1] = Tiles.ARROW_DOWN;
+            grid[column][row] = Tiles.EMPTY;
+            grid[column+1][row] = player.getColour().getBall();
+            sleepAndPaint(panel);
+            grid[column][row+1] = Tiles.ARROW_LEFT;
+
+            if((grid[column+1][row+1] == Tiles.BALL_GREEN || grid[column+1][row+1] == Tiles.BALL_RED) && column < SIZE_X - 2) {
+                grid[column + 1][row] = Tiles.EMPTY;
+                grid[column + 2][row] = player.getColour().getBall();
+                sleepAndPaint(panel);
+
+                updateGrid(panel, player, column+2, row);
+            }
+            updateGrid(panel, player, column+1, row);
 
         }
     }
 
-    private void stuck(Player player, int column, int row) {
+    private void stuck(Panel panel, Player player, int column, int row) {
         grid[column][row] = player.getColour().getBall();
         if(row == 2) {
             stuckLanes[column] = true;
         }
     }
 
-    private void freeFall(Player player, int column, int row) {
+    private void freeFall(Panel panel, Player player, int column, int row) {
         grid[column][row] = Tiles.EMPTY;
         grid[column][row+1] = player.getColour().getBall();
-        updateGrid(player, column, row+1);
+        updateGrid(panel, player, column, row+1);
 
     }
 

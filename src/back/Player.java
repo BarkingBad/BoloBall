@@ -34,6 +34,10 @@ public class Player {
         return score;
     }
 
+    public String getScoreToString() {
+        return "" + score;
+    }
+
     public boolean[] getAvaiableBalls() {
         return availableBalls;
     }
@@ -72,7 +76,7 @@ public class Player {
     }
 
 
-    public void keyPressed(KeyEvent e, Playground p) {
+    public void keyPressed(KeyEvent e, Playground p, Panel panel) {
         int key = e.getKeyCode();
         if (key == KeyEvent.VK_LEFT) {
             goLeft();
@@ -85,7 +89,7 @@ public class Player {
         if (key == KeyEvent.VK_DOWN) {
             if(this.isAvailable(column)) {
                 this.markBallAsUsed(column);
-                p.updateGrid(this, this.column, 1);
+                p.updateGrid(panel,this, this.column, 1);
             }
 
         }
@@ -102,7 +106,6 @@ public class Player {
             }
         }
         p.setTileAt(this.getColour().getSprite(), column, 0);
-
     }
 
     public boolean isAvailable(int i) {
