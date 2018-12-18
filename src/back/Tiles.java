@@ -28,7 +28,7 @@ public enum Tiles {
         try {
             this.img = ImageIO.read(imageFile);
         } catch (IOException e) {
-            System.err.println("Blad odczytu obrazka");
+            System.err.println("Blad odczytu obrazka z pliku " + path);
             e.printStackTrace();
         }
     }

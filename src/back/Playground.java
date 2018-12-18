@@ -61,6 +61,8 @@ public class Playground {
                     teleports.add(new Point(x, y));
             }
         }
+
+        tooFewTeleports();
     }
 
     private Tiles associateTile() {
@@ -87,39 +89,40 @@ public class Playground {
     }
 
     public void swipeTheBall(Panel panel, Player player, int column) {
-
+        stuck(panel,player,column,SIZE_Y-1);
     }
 
     public void updateGrid(Panel panel, Player player, int column, int row) {
         sleepAndPaint(panel);
         if(row == SIZE_Y - 1) {
             swipeTheBall(panel, player, column);
-        }
-        switch (grid[column][row+1]) {
-            case EMPTY:
-                freeFall(panel, player, column, row);
-                break;
-            case BALL_RED:
-                stuck(panel, player, column, row);
-                break;
-            case BALL_GREEN:
-                stuck(panel, player, column, row);
-                break;
-            case ARROW_LEFT:
-                turnBall(panel, player, column, row);
-                break;
-            case ARROW_RIGHT:
-                turnBall(panel, player, column, row);
-                break;
-            case BLOCK:
-                stuck(panel, player, column, row);
-                break;
-            case TELEPORT:
-                teleport(panel, player, column, row);
-                break;
-            case POINTS:
-                addScore(panel, player, column, row);
-                break;
+        } else {
+            switch (grid[column][row + 1]) {
+                case EMPTY:
+                    freeFall(panel, player, column, row);
+                    break;
+                case BALL_RED:
+                    stuck(panel, player, column, row);
+                    break;
+                case BALL_GREEN:
+                    stuck(panel, player, column, row);
+                    break;
+                case ARROW_LEFT:
+                    turnBall(panel, player, column, row);
+                    break;
+                case ARROW_RIGHT:
+                    turnBall(panel, player, column, row);
+                    break;
+                case BLOCK:
+                    stuck(panel, player, column, row);
+                    break;
+                case TELEPORT:
+                    teleport(panel, player, column, row);
+                    break;
+                case POINTS:
+                    addScore(panel, player, column, row);
+                    break;
+            }
         }
     }
 
@@ -130,7 +133,7 @@ public class Playground {
 
     private void teleport(Panel panel, Player player, int column, int row) {
         List<Point> tmp = teleports.subList(0, teleports.size());
-        tmp.remove(new Point(column, row));
+        tmp.remove(new Point(column, row)); //TODO: bład z losowaniem samego siebie
         int r = random.nextInt(tmp.size());
         grid[column][row] = Tiles.EMPTY;
         grid[column][row+1] = player.getColour().getBall();
@@ -138,6 +141,7 @@ public class Playground {
         grid[column][row+1] = Tiles.TELEPORT;
         grid[tmp.get(r).getX()][tmp.get(r).getY()] = player.getColour().getBall();
         updateGrid(panel, player, tmp.get(r).getX(), tmp.get(r).getY() );
+        tooFewTeleports();
     }
 
     private void turnBall(Panel panel, Player player, int column, int row) {
@@ -217,5 +221,13 @@ public class Playground {
         if(x < 0 || x >= SIZE_X || y < 0 || y >= SIZE_Y)
             throw new ArrayIndexOutOfBoundsException();
         grid[x][y] = t;
+    }
+
+    public void tooFewTeleports() {
+        if(teleports.size() < 2) {
+            for(Point p : teleports) {
+                grid[p.getX()][p.getY()] = Tiles.EMPTY;
+            }
+        }
     }
 }
