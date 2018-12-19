@@ -3,6 +3,7 @@ package back;
 import front.Frame;
 import front.Panel;
 
+import javax.swing.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -20,6 +21,7 @@ public class Playground {
     private boolean stuckLanes[] = new boolean[SIZE_X];
     private List<Pair<Tiles, Integer>> amountOfTiles = new LinkedList<>();
     private List<Point> teleports = new LinkedList<>();
+    private List<Point> temporaryPoints = new LinkedList<>();
     private Random random = new Random();
 
 
@@ -133,15 +135,15 @@ public class Playground {
 
     private void teleport(Panel panel, Player player, int column, int row) {
         List<Point> tmp = teleports.subList(0, teleports.size());
-        tmp.remove(new Point(column, row)); //TODO: bład z losowaniem samego siebie
+        tmp.remove(new Point(column, row+1));
         int r = random.nextInt(tmp.size());
         grid[column][row] = Tiles.EMPTY;
         grid[column][row+1] = player.getColour().getBall();
         sleepAndPaint(panel);
         grid[column][row+1] = Tiles.TELEPORT;
         grid[tmp.get(r).getX()][tmp.get(r).getY()] = player.getColour().getBall();
-        updateGrid(panel, player, tmp.get(r).getX(), tmp.get(r).getY() );
         tooFewTeleports();
+        updateGrid(panel, player, tmp.get(r).getX(), tmp.get(r).getY() );
     }
 
     private void turnBall(Panel panel, Player player, int column, int row) {
@@ -191,6 +193,8 @@ public class Playground {
 
     private void stuck(Panel panel, Player player, int column, int row) {
         grid[column][row] = player.getColour().getBall();
+        temporaryPoints.add(new Point(column, row));
+        player.addScore(row*2);
         if(row == 2) {
             stuckLanes[column] = true;
         }
@@ -199,8 +203,10 @@ public class Playground {
     private void freeFall(Panel panel, Player player, int column, int row) {
         grid[column][row] = Tiles.EMPTY;
         grid[column][row+1] = player.getColour().getBall();
+        for(Point p : teleports) {
+            grid[p.getX()][p.getY()] = Tiles.TELEPORT;
+        }
         updateGrid(panel, player, column, row+1);
-
     }
 
     public boolean[] getStuckLanes() {
@@ -228,6 +234,11 @@ public class Playground {
             for(Point p : teleports) {
                 grid[p.getX()][p.getY()] = Tiles.EMPTY;
             }
+            teleports.clear();
         }
+    }
+
+    public List<Point> getTemporaryPoints() {
+        return temporaryPoints;
     }
 }

@@ -8,7 +8,7 @@ import java.awt.*;
 
 
 public class Frame extends JFrame {
-    public static final int WIDTH = 990;//984;
+    public static final int WIDTH = 984;//990 WINDOWS;
     public static final int HEIGHT = 800;
 
     public Frame() {

@@ -8,18 +8,18 @@ import java.io.File;
 import java.io.IOException;
 
 public enum Tiles {
-    EMPTY( "C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\empty.png"),
-    UPPER_FIELD( "C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\upper_field.png"),
-    BALL_RED( "C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\ball_red.png"),
-    BALL_GREEN( "C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\ball_green.png"),
-    ARROW_LEFT( "C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\arrow_left.png"),
-    ARROW_RIGHT( "C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\arrow_right.png"),
-    ARROW_DOWN("C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\arrow_down.png"),
-    BLOCK( "C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\block.png"),
-    TELEPORT( "C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\teleport.png"),
-    POINTS( "C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\points.png"),
-    SPRITE_RED("C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\sprite_red.png"),
-    SPRITE_GREEN("C:\\Users\\andrz\\IdeaProjects\\BoloBall\\src\\img\\sprite_green.png");
+    EMPTY( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/empty.png"),
+    UPPER_FIELD( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/upper_field.png"),
+    BALL_RED( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/ball_red.png"),
+    BALL_GREEN( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/ball_green.png"),
+    ARROW_LEFT( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/arrow_left.png"),
+    ARROW_RIGHT( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/arrow_right.png"),
+    ARROW_DOWN("/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/arrow_down.png"),
+    BLOCK( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/block.png"),
+    TELEPORT( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/teleport.png"),
+    POINTS( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/points.png"),
+    SPRITE_RED("/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/sprite_red.png"),
+    SPRITE_GREEN("/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/sprite_green.png");
 
     private BufferedImage img;
 

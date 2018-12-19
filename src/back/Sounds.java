@@ -16,15 +16,19 @@ public enum Sounds {
 
     private AudioStream sample;
 
-    Sounds(String path) {
-        try {
-            sample = new AudioStream(new FileInputStream(path));
-        }
-        catch(IOException e) {
-            System.err.println("Blad odczytu sampla z pliku " + path);
-            e.printStackTrace();
-        }
+
+    Sounds() {
+
     }
+//    Sounds(String path) {
+//        try {
+//            sample = new AudioStream(new FileInputStream(path));
+//        }
+//        catch(IOException e) {
+//            System.err.println("Blad odczytu sampla z pliku " + path);
+//            e.printStackTrace();
+//        }
+//    }
 
     public AudioStream getSample() {
         return sample;
