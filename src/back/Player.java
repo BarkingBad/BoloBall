@@ -1,8 +1,6 @@
 package back;
 
-import front.Panel;
-
-import java.awt.event.KeyEvent;
+import front.GamePanel;
 
 import static back.Playground.SIZE_X;
 
@@ -10,24 +8,21 @@ public class Player {
     private Colour colour;
     private int score;
     private boolean availableBalls[];
-    private boolean stuckBalls[];
+    public boolean canContinue = true;
     private int column;
 
     public Player(Colour colour) {
         this.colour = colour;
         this.score = 0;
         this.availableBalls = new boolean[SIZE_X];
-        this.stuckBalls = new boolean[SIZE_X];
         this.column = 0;
-        for(int i = 0; i < SIZE_X; i++) {
+        for(int i = 0; i <  /*3*/ SIZE_X; i++) {
             availableBalls[i] = true;
-            stuckBalls[i] = false;
         }
     }
 
     public Colour getColour() {
         return colour;
-
     }
 
     public int getScore() {
@@ -56,40 +51,31 @@ public class Player {
             column = column + 1;
     }
 
-    public void update(Playground playground) {
+    public void update(Playground playground, GamePanel gamePanel) {
         this.prepareView(playground);
     }
 
     public void addScore(int delta) {
         this.score += delta;
     }
-    public boolean canDropTheBall() {
-        return availableBalls[column] && !stuckBalls[column];
+
+    public boolean canDropTheBall(Playground playground, int column) {
+        return isAvailable(column) && !playground.isLaneStuck(column);
     }
 
-    public void updateStuckBalls(boolean[] table) {
-        for(int i = 0; i<SIZE_X; i++) {
-            if(availableBalls[i] == true && table[i] == true) {
-                stuckBalls[i] = true;
-            }
-        }
-    }
-
-
-    public void keyPressed(KeyEvent e, Playground p, Panel panel) {
-        int key = e.getKeyCode();
-        if (key == KeyEvent.VK_LEFT) {
+    public void keyPressed(int i, Playground playground, GamePanel gamePanel) {
+        if (i == -1) {
             goLeft();
         }
 
-        if (key == KeyEvent.VK_RIGHT) {
+        if (i == 1) {
             goRight();
         }
 
-        if (key == KeyEvent.VK_DOWN) {
-            if(this.isAvailable(column)) {
+        if (i == 0) {
+            if(this.canDropTheBall(playground, column)) {
                 this.markBallAsUsed(column);
-                p.updateGrid(panel,this, this.column, 1);
+                playground.updateGrid(gamePanel, this.column, 1, End.NO);
             }
 
         }
@@ -98,21 +84,36 @@ public class Player {
 
     public void prepareView(Playground p) {
 
-
         for(int i=0; i<SIZE_X; i++) {
             p.setTileAt(Tiles.UPPER_FIELD, i, 0);
             if(availableBalls[i]) {
                 p.setTileAt(this.getColour().getBall(), i, 1);
             }
+            else {
+                p.setTileAt(Tiles.EMPTY, i, 1);
+            }
         }
         p.setTileAt(this.getColour().getSprite(), column, 0);
     }
 
-    public boolean isAvailable(int i) {
+    private boolean isAvailable(int i) {
         return this.availableBalls[i];
     }
 
-    public void markBallAsUsed(int i) {
+    private void markBallAsUsed(int i) {
         this.availableBalls[i] = false;
+    }
+
+    public void canMove(Playground p) {
+        canContinue = recursiveBallCheck(p, SIZE_X - 1);
+    }
+
+    private boolean recursiveBallCheck(Playground p, int n) {
+        if(n == 0) {
+            return canDropTheBall(p, n);
+        }
+        else {
+            return recursiveBallCheck(p, n-1) || canDropTheBall(p, n);
+        }
     }
 }

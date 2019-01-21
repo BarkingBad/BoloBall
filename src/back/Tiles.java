@@ -1,6 +1,8 @@
 package back;
 
 
+import front.Frame;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -8,18 +10,18 @@ import java.io.File;
 import java.io.IOException;
 
 public enum Tiles {
-    EMPTY( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/empty.png"),
-    UPPER_FIELD( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/upper_field.png"),
-    BALL_RED( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/ball_red.png"),
-    BALL_GREEN( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/ball_green.png"),
-    ARROW_LEFT( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/arrow_left.png"),
-    ARROW_RIGHT( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/arrow_right.png"),
-    ARROW_DOWN("/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/arrow_down.png"),
-    BLOCK( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/block.png"),
-    TELEPORT( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/teleport.png"),
-    POINTS( "/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/points.png"),
-    SPRITE_RED("/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/sprite_red.png"),
-    SPRITE_GREEN("/home/andrzej/Dokumenty/PO/BoloBall/BoloBall/src/img/sprite_green.png");
+    EMPTY(Frame.imgPaths + "empty.png"),
+    UPPER_FIELD(Frame.imgPaths + "upper_field.png"),
+    BALL_RED(Frame.imgPaths + "ball_red.png"),
+    BALL_GREEN(Frame.imgPaths + "ball_green.png"),
+    ARROW_LEFT(Frame.imgPaths + "arrow_left.png"),
+    ARROW_RIGHT(Frame.imgPaths + "arrow_right.png"),
+    ARROW_DOWN(Frame.imgPaths + "arrow_down.png"),
+    BLOCK(Frame.imgPaths + "block.png"),
+    TELEPORT(Frame.imgPaths + "teleport.png"),
+    POINTS(Frame.imgPaths + "points.png"),
+    SPRITE_RED(Frame.imgPaths + "sprite_red.png"),
+    SPRITE_GREEN(Frame.imgPaths + "sprite_green.png");
 
     private BufferedImage img;
 

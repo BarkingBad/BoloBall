@@ -1,9 +1,7 @@
 package back;
 
-import front.Frame;
-import front.Panel;
+import front.GamePanel;
 
-import javax.swing.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -15,7 +13,7 @@ public class Playground {
     public static final int SIZE_X = 29;
     public static final int FIELD = SIZE_X * SIZE_Y;
     private Tiles [][] grid = new Tiles [SIZE_X][SIZE_Y];
-
+    private Jukebox jukebox = new Jukebox();
 
 
     private boolean stuckLanes[] = new boolean[SIZE_X];
@@ -27,7 +25,7 @@ public class Playground {
 
 
     public Playground() {
-
+        jukebox.start();
         associateCounts();
         fillGrid();
         for(int i = 0; i<SIZE_X; i++) {
@@ -80,144 +78,162 @@ public class Playground {
         return Tiles.EMPTY;
     }
 
-    private void sleepAndPaint(Panel panel) {
-        panel.paintImmediately(0,0, Frame.WIDTH, Frame.HEIGHT);
-        try {
-            Thread.sleep(500);
-        }
-        catch (InterruptedException e){
+    public void swipeTheBall(GamePanel gamePanel, int column, End end) {
+        int direction = gamePanel.getCurrentPlayer().getColour() == Colour.RED ? 1 : -1;
 
+        while(column % (SIZE_X-1) != 0) {
+            this.setTileAt(Tiles.EMPTY, column, SIZE_Y-1);
+            this.setTileAt(gamePanel.getCurrentPlayer().getColour().getBall(), column+=direction, SIZE_Y-1);
+            jukebox.push(Sounds.POINTS_INCREASE);
+            gamePanel.sleepAndPaint(100);
+        }
+        this.setTileAt(Tiles.EMPTY, column, SIZE_Y-1);
+        gamePanel.getCurrentPlayer().addScore(60);
+        jukebox.push(Sounds.FULL_SCORE);
+        gamePanel.getCurrentPlayer().canMove(this);
+        if(!end.getState()) {
+            gamePanel.changePlayer();
         }
     }
 
-    public void swipeTheBall(Panel panel, Player player, int column) {
-        stuck(panel,player,column,SIZE_Y-1);
-    }
-
-    public void updateGrid(Panel panel, Player player, int column, int row) {
-        sleepAndPaint(panel);
+    public void updateGrid(GamePanel gamePanel, int column, int row, End end) {
+        gamePanel.sleepAndPaint(500);
         if(row == SIZE_Y - 1) {
-            swipeTheBall(panel, player, column);
+            swipeTheBall(gamePanel, column, end);
         } else {
             switch (grid[column][row + 1]) {
                 case EMPTY:
-                    freeFall(panel, player, column, row);
+                    freeFall(gamePanel, column, row, end);
                     break;
                 case BALL_RED:
-                    stuck(panel, player, column, row);
+                    stuck(gamePanel, column, row, end);
                     break;
                 case BALL_GREEN:
-                    stuck(panel, player, column, row);
+                    stuck(gamePanel, column, row, end);
                     break;
                 case ARROW_LEFT:
-                    turnBall(panel, player, column, row);
+                    turnBall(gamePanel, column, row, end);
                     break;
                 case ARROW_RIGHT:
-                    turnBall(panel, player, column, row);
+                    turnBall(gamePanel, column, row, end);
                     break;
                 case BLOCK:
-                    stuck(panel, player, column, row);
+                    stuck(gamePanel, column, row, end);
                     break;
                 case TELEPORT:
-                    teleport(panel, player, column, row);
+                    fallInTeleport(gamePanel, column, row, end);
                     break;
                 case POINTS:
-                    addScore(panel, player, column, row);
+                    addScore(gamePanel, column, row, end);
                     break;
             }
         }
     }
 
-    private void addScore(Panel panel, Player player, int column, int row) {
-        player.addScore(10);
-        freeFall(panel, player, column, row);
+    private void addScore(GamePanel gamePanel, int column, int row, End end) {
+        gamePanel.getCurrentPlayer().addScore(10);
+        jukebox.push(Sounds.POINTS_INCREASE);
+        freeFall(gamePanel, column, row, end);
     }
 
-    private void teleport(Panel panel, Player player, int column, int row) {
-        List<Point> tmp = teleports.subList(0, teleports.size());
-        tmp.remove(new Point(column, row+1));
-        int r = random.nextInt(tmp.size());
+    private void fallInTeleport(GamePanel gamePanel, int column, int row, End end) {
         grid[column][row] = Tiles.EMPTY;
-        grid[column][row+1] = player.getColour().getBall();
-        sleepAndPaint(panel);
-        grid[column][row+1] = Tiles.TELEPORT;
-        grid[tmp.get(r).getX()][tmp.get(r).getY()] = player.getColour().getBall();
+        grid[column][row+1] = gamePanel.getCurrentPlayer().getColour().getBall();
+        teleport(gamePanel, column, row+1, end);
+    }
+
+    private void teleport(GamePanel gamePanel, int column, int row, End end) {
+        List<Point> tmp = new LinkedList<>(teleports);
+        tmp.remove(new Point(column, row));
+        int r = random.nextInt(teleports.size()-1);
+        jukebox.push(Sounds.TELEPORT);
+        gamePanel.sleepAndPaint(500);
+        grid[tmp.get(r).getX()][tmp.get(r).getY()] = gamePanel.getCurrentPlayer().getColour().getBall();
+        if( grid[tmp.get(r).getX()][tmp.get(r).getY()+1] == Tiles.BALL_GREEN  ||
+            grid[tmp.get(r).getX()][tmp.get(r).getY()+1] == Tiles.BALL_RED  ||
+            grid[tmp.get(r).getX()][tmp.get(r).getY()+1] == Tiles.BLOCK ) {
+            teleports.remove(new Point(tmp.get(r).getX(), tmp.get(r).getY()));
+        }
         tooFewTeleports();
-        updateGrid(panel, player, tmp.get(r).getX(), tmp.get(r).getY() );
+        updateGrid(gamePanel, tmp.get(r).getX(), tmp.get(r).getY(), end);
     }
 
-    private void turnBall(Panel panel, Player player, int column, int row) {
+    private void turnBall(GamePanel gamePanel, int column, int row, End end) {
 
-        if(grid[column][row+1] == Tiles.ARROW_LEFT && column > 0 && (grid[column-1][row] == Tiles.EMPTY || grid[column-1][row] == Tiles.POINTS)) {
-            if(grid[column-1][row] == Tiles.POINTS) {
-                player.addScore(10);
-            }
-            grid[column][row+1] = Tiles.ARROW_DOWN;
-            grid[column][row] = Tiles.EMPTY;
-            grid[column-1][row] = player.getColour().getBall();
-            sleepAndPaint(panel);
-            grid[column][row+1] = Tiles.ARROW_RIGHT;
-            if((grid[column-1][row+1] == Tiles.BALL_GREEN || grid[column-1][row+1] == Tiles.BALL_RED) && column > 1) {
-                grid[column - 1][row] = Tiles.EMPTY;
-                grid[column - 2][row] = player.getColour().getBall();
-                sleepAndPaint(panel);
-
-                updateGrid(panel, player, column-2, row);
-            }
-
-            updateGrid(panel, player, column-1, row);
-
-        }
-
-        else if(grid[column][row+1] == Tiles.ARROW_RIGHT && column < SIZE_X - 1 && (grid[column+1][row] == Tiles.EMPTY || grid[column+1][row] == Tiles.POINTS)) {
-            if(grid[column+1][row] == Tiles.POINTS) {
-                player.addScore(10);
-            }
-            grid[column][row+1] = Tiles.ARROW_DOWN;
-            grid[column][row] = Tiles.EMPTY;
-            grid[column+1][row] = player.getColour().getBall();
-            sleepAndPaint(panel);
-            grid[column][row+1] = Tiles.ARROW_LEFT;
-
-            if((grid[column+1][row+1] == Tiles.BALL_GREEN || grid[column+1][row+1] == Tiles.BALL_RED) && column < SIZE_X - 2) {
-                grid[column + 1][row] = Tiles.EMPTY;
-                grid[column + 2][row] = player.getColour().getBall();
-                sleepAndPaint(panel);
-
-                updateGrid(panel, player, column+2, row);
-            }
-            updateGrid(panel, player, column+1, row);
-
+        if(grid[column][row+1] == Tiles.ARROW_LEFT && column > 0) {
+            pushAside(gamePanel, column, row, end, -1);
+        } else if(grid[column][row+1] == Tiles.ARROW_RIGHT && column < SIZE_X - 1) {
+            pushAside(gamePanel, column, row, end, 1);
+        } else {
+            stuck(gamePanel, column, row, end);
         }
     }
 
-    private void stuck(Panel panel, Player player, int column, int row) {
-        grid[column][row] = player.getColour().getBall();
+    private void pushAside(GamePanel gamePanel, int column, int row, End end, int direction) {
+        if(!(grid[column + direction][row] == Tiles.EMPTY || grid[column + direction][row] == Tiles.POINTS || grid[column + direction][row] == Tiles.TELEPORT)) {
+            stuck(gamePanel, column, row, end);
+        }
+        else{
+            if (grid[column + direction][row] == Tiles.POINTS) {
+                gamePanel.getCurrentPlayer().addScore(10);
+            }
+            grid[column][row + 1] = Tiles.ARROW_DOWN;
+            grid[column][row] = Tiles.EMPTY;
+            grid[column + direction][row] = gamePanel.getCurrentPlayer().getColour().getBall();
+            if (teleports.contains(new Point(column + direction, row))) {
+                grid[column][row + 1] = direction == -1 ? Tiles.ARROW_RIGHT : Tiles.ARROW_LEFT;
+                teleport(gamePanel, column + direction, row, end);
+            }
+            else if ((grid[column + direction][row + 1] == Tiles.BALL_GREEN || grid[column + direction][row + 1] == Tiles.BALL_RED) && (column > 1 && column < SIZE_X-1) && grid[column + 2*direction][row] == Tiles.EMPTY) {
+                gamePanel.sleepAndPaint(500);
+                grid[column][row + 1] = direction == -1 ? Tiles.ARROW_RIGHT : Tiles.ARROW_LEFT;
+                grid[column + direction][row] = Tiles.EMPTY;
+                grid[column + 2*direction][row] = gamePanel.getCurrentPlayer().getColour().getBall();
+                gamePanel.sleepAndPaint(500);
+
+                updateGrid(gamePanel, column + 2*direction, row, end);
+            } else {
+                gamePanel.sleepAndPaint(500);
+                grid[column][row + 1] = direction == -1 ? Tiles.ARROW_RIGHT : Tiles.ARROW_LEFT;
+                updateGrid(gamePanel, column + direction, row, end);
+            }
+        }
+    }
+
+    private void stuck(GamePanel gamePanel, int column, int row, End end) {
+        grid[column][row] = gamePanel.getCurrentPlayer().getColour().getBall();
         temporaryPoints.add(new Point(column, row));
-        player.addScore(row*2);
+        teleports.remove(new Point(column, row));
+        gamePanel.getCurrentPlayer().addScore((row-1)*2);
         if(row == 2) {
             stuckLanes[column] = true;
         }
+        gamePanel.getPlayers()[0].canMove(this);
+        gamePanel.getPlayers()[1].canMove(this);
+        if(!end.getState()) {
+            gamePanel.changePlayer();
+        }
     }
 
-    private void freeFall(Panel panel, Player player, int column, int row) {
+    private void freeFall(GamePanel gamePanel, int column, int row, End end) {
         grid[column][row] = Tiles.EMPTY;
-        grid[column][row+1] = player.getColour().getBall();
+        grid[column][row+1] = gamePanel.getCurrentPlayer().getColour().getBall();
         for(Point p : teleports) {
             grid[p.getX()][p.getY()] = Tiles.TELEPORT;
         }
-        updateGrid(panel, player, column, row+1);
+        jukebox.push(Sounds.FALLING);
+        updateGrid(gamePanel, column, row+1, end);
     }
 
-    public boolean[] getStuckLanes() {
-        return stuckLanes;
+    public boolean isLaneStuck(int column) {
+        return stuckLanes[column];
     }
 
     public Tiles[][] getGrid() {
         return grid;
     }
 
-    public Tiles getBallAt(int x, int y) throws ArrayIndexOutOfBoundsException {
+    public Tiles getTileAt(int x, int y) throws ArrayIndexOutOfBoundsException {
         if(x < 0 || x >= SIZE_X || y < 0 || y >= SIZE_Y)
             throw new ArrayIndexOutOfBoundsException();
         return grid[x][y];
@@ -240,5 +256,39 @@ public class Playground {
 
     public List<Point> getTemporaryPoints() {
         return temporaryPoints;
+    }
+
+    public void finishTheGame(GamePanel gamePanel) {
+        for(int j = 2; j<SIZE_Y-1; j++) {
+            for(int i = 0; i<SIZE_X; i++) {
+                if(grid[i][j] == Tiles.BLOCK) {
+                    grid[i][j] = Tiles.EMPTY;
+                    gamePanel.sleepAndPaint(50);
+                }
+            }
+        }
+        for(int j = SIZE_Y - 2; j>1; j--) {
+            for(int i = 0; i<SIZE_X; i++) {
+                if(getTileAt(i, j) == Tiles.BALL_GREEN) {
+                    gamePanel.getPlayers()[0].addScore( (-2)*(j-1) );
+                    gamePanel.setCurrentTurn(0);
+                    temporaryPoints.remove(new Point(i, j));
+                    updateGrid(gamePanel, i, j, End.YES);
+                }
+                if(getTileAt(i, j) == Tiles.BALL_RED) {
+                    gamePanel.getPlayers()[1].addScore( (-2)*(j-1) );
+                    gamePanel.setCurrentTurn(1);
+                    temporaryPoints.remove(new Point(i, j));
+                    updateGrid(gamePanel, i, j, End.YES);
+                }
+            }
+        }
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        gamePanel.getFrame().dashboard(gamePanel.getPlayers()[0].getScore(), gamePanel.getPlayers()[1].getScore());
     }
 }

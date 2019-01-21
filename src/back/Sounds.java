@@ -1,36 +1,34 @@
 package back;
 
-import sun.audio.AudioStream;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import front.Frame;
+
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import java.io.File;
+
+
 
 public enum Sounds {
-    FALLING(),
-    POINTS_INCREASE(),
-    NEW_TURN(),
-    STEP(),
-    WIN();
+    FALLING(Frame.samplesPaths + "freeFall.wav"),
+    POINTS_INCREASE(Frame.samplesPaths + "points.wav"),
+    TELEPORT(Frame.samplesPaths + "teleport.wav"),
+    FULL_SCORE(Frame.samplesPaths + "fullScore.wav");
 
-    private AudioStream sample;
+    private Clip sample;
 
+    Sounds(String path) {
+        try {
+            sample = AudioSystem.getClip();
+            sample.open(AudioSystem.getAudioInputStream(new File(path)));
 
-    Sounds() {
-
+        } catch (Exception e) {
+            System.err.println("Problem z zaladowaniem sampla!");
+        }
     }
-//    Sounds(String path) {
-//        try {
-//            sample = new AudioStream(new FileInputStream(path));
-//        }
-//        catch(IOException e) {
-//            System.err.println("Blad odczytu sampla z pliku " + path);
-//            e.printStackTrace();
-//        }
-//    }
 
-    public AudioStream getSample() {
+    public Clip getSample() {
         return sample;
     }
 }
